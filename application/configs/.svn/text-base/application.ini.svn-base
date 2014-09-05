@@ -1,0 +1,325 @@
+;--------------------------------------------------------------------------------
+[production]
+;--------------------------------------------------------------------------------
+	phpSettings.display_startup_errors = 0
+	phpSettings.display_errors = 0
+	includePaths.library = APPLICATION_PATH "/../library"
+	bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+	bootstrap.class = "Bootstrap"
+	appnamespace = "Application"
+	autoloaderNamespaces.0 = "Ext"
+	resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+	resources.frontController.params.displayExceptions = 0
+	resources.layout.layoutPath = APPLICATION_PATH "/layouts/scripts/"
+
+;	resources.locale.default = "is_IS"
+;	resources.locale.force = true
+
+	;;;;;LOG
+	resources.log.stream.writerName = "Stream"
+	resources.log.stream.writerParams.stream = APPLICATION_PATH "/../var/log/error.log"
+	resources.log.stream.writerParams.mode = "a"
+
+	;;;;;DATABASE
+	resources.db.adapter = pdo_mysql
+	resources.db.params.host = 127.0.0.1
+	resources.db.params.username = root
+	resources.db.params.password = 
+	resources.db.params.dbname = vegbuinn
+	resources.db.params.charset = utf8
+
+	;;;;;MAIL
+	resources.mail.transport.type = smtp
+	resources.mail.transport.host = "localhost"
+;	resources.mail.transport.auth = login
+;	resources.mail.transport.username = myUsername
+;	resources.mail.transport.password = myPassword
+;	resources.mail.transport.register = true ; True by default
+	resources.mail.defaultFrom.email = stjornvisi@stjornvisi.is
+	resources.mail.defaultFrom.name = "Stjórnvísi"
+;	resources.mail.defaultReplyTo.email = Jane@example.com
+;	resources.mail.defaultReplyTo.name = "Jane Doe"
+	
+	;;;;;ROUTER
+	;Group::entry
+	resources.router.routes.group_entry.route = "hopur/:url/*"
+	resources.router.routes.group_entry.defaults.module = "default"
+	resources.router.routes.group_entry.defaults.controller = "group"
+	resources.router.routes.group_entry.defaults.action = "index"
+	
+	;Index::about
+	resources.router.routes.index_about.route = "/um"
+	resources.router.routes.index_about.defaults.module = "default"
+	resources.router.routes.index_about.defaults.controller = "index"
+	resources.router.routes.index_about.defaults.action = "about"
+	
+	;Index::faq
+	resources.router.routes.index_faq.route = "/spurtogsvarad"
+	resources.router.routes.index_faq.defaults.module = "default"
+	resources.router.routes.index_faq.defaults.controller = "index"
+	resources.router.routes.index_faq.defaults.action = "faq"
+	
+	;Index::board
+	resources.router.routes.index_board.route = "/stjornin"
+	resources.router.routes.index_board.defaults.module = "default"
+	resources.router.routes.index_board.defaults.controller = "index"
+	resources.router.routes.index_board.defaults.action = "board"
+	
+	;Index::laws
+	resources.router.routes.index_laws.route = "/log-arsskyrslur-og-arsreikningar"
+	resources.router.routes.index_laws.defaults.module = "default"
+	resources.router.routes.index_laws.defaults.controller = "index"
+	resources.router.routes.index_laws.defaults.action = "laws"
+
+	;Company::company-list
+	resources.router.routes.company_list.route = "fyrirtaeki"
+	resources.router.routes.company_list.defaults.module = "default"
+	resources.router.routes.company_list.defaults.controller = "company"
+	resources.router.routes.company_list.defaults.action = "list"
+
+	;Company::company-entry
+	resources.router.routes.company_entry.route = "fyrirtaeki/:name"
+	resources.router.routes.company_entry.defaults.module = "default"
+	resources.router.routes.company_entry.defaults.controller = "company"
+	resources.router.routes.company_entry.defaults.action = "index"
+
+	;Auth::create-user
+	resources.router.routes.new_user.route = "nyskra"
+	resources.router.routes.new_user.defaults.module = "default"
+	resources.router.routes.new_user.defaults.controller = "auth"
+	resources.router.routes.new_user.defaults.action = "create-user"
+
+	;Auth::login
+	resources.router.routes.login_user.route = "innskra"
+	resources.router.routes.login_user.defaults.module = "default"
+	resources.router.routes.login_user.defaults.controller = "auth"
+	resources.router.routes.login_user.defaults.action = "login"	
+
+	;Auth::logout
+	resources.router.routes.logout_user.route = "utskra"
+	resources.router.routes.logout_user.defaults.module = "default"
+	resources.router.routes.logout_user.defaults.controller = "auth"
+	resources.router.routes.logout_user.defaults.action = "logout"	
+	
+	;User::read
+	resources.router.routes.user_read.route = "notandi"
+	resources.router.routes.user_read.defaults.module = "default"
+	resources.router.routes.user_read.defaults.controller = "user"
+	resources.router.routes.user_read.defaults.action = "index"
+	
+	;User::read
+	resources.router.routes.user_update.route = "notandi/stillingar"
+	resources.router.routes.user_update.defaults.module = "default"
+	resources.router.routes.user_update.defaults.controller = "user"
+	resources.router.routes.user_update.defaults.action = "update"
+	
+	;News::list
+	resources.router.routes.news_list.route = "frettir/:sida/:page"
+	resources.router.routes.news_list.defaults.module = "default"
+	resources.router.routes.news_list.defaults.controller = "news"
+	resources.router.routes.news_list.defaults.action = "list"
+	resources.router.routes.news_list.defaults.sida = "sida"
+	resources.router.routes.news_list.defaults.page = 1
+	
+	;News::read
+	resources.router.routes.news_read.type = Zend_Controller_Router_Route_Regex
+	resources.router.routes.news_read.map.1 = "id"
+	resources.router.routes.news_read.route = "frettir/(\d+)"
+	resources.router.routes.news_read.defaults.module = "default"
+	resources.router.routes.news_read.defaults.controller = "news"
+	resources.router.routes.news_read.defaults.action = "index"
+	
+	;Event::list
+	resources.router.routes.event_pagination.route = "vidburdir/:sida/:page"
+	resources.router.routes.event_pagination.defaults.module = "default"
+	resources.router.routes.event_pagination.defaults.controller = "event"
+	resources.router.routes.event_pagination.defaults.action = "list"	
+	resources.router.routes.event_pagination.defaults.sida = "sida"	
+	resources.router.routes.event_pagination.defaults.page = 1
+	
+	;Event::read
+	resources.router.routes.event_read.type = Zend_Controller_Router_Route_Regex
+	resources.router.routes.event_read.map.1 = "id"
+	resources.router.routes.event_read.route = "vidburdir/(\d+)"
+	resources.router.routes.event_read.defaults.module = "default"
+	resources.router.routes.event_read.defaults.controller = "event"
+	resources.router.routes.event_read.defaults.action = "index"
+
+	;Article::index
+	resources.router.routes.article-index.route = "greinar"
+	resources.router.routes.article-index.defaults.module = "default"
+	resources.router.routes.article-index.defaults.controller = "article"
+	resources.router.routes.article-index.defaults.action = "index"	
+
+	;Article::is
+	resources.router.routes.article-is.route = "greinar/greinar-a-islensku"
+	resources.router.routes.article-is.defaults.module = "default"
+	resources.router.routes.article-is.defaults.controller = "article"
+	resources.router.routes.article-is.defaults.action = "is"	
+	
+	;Article::en
+	resources.router.routes.article-en.route = "greinar/greinar-a-ensku"
+	resources.router.routes.article-en.defaults.module = "default"
+	resources.router.routes.article-en.defaults.controller = "article"
+	resources.router.routes.article-en.defaults.action = "en"
+	
+	;Article::reports
+	resources.router.routes.article-reports.route = "greinar/skyrslur-og-uttektir"
+	resources.router.routes.article-reports.defaults.module = "default"
+	resources.router.routes.article-reports.defaults.controller = "article"
+	resources.router.routes.article-reports.defaults.action = "reports"
+	
+	;Qualitymeter
+	resources.router.routes.qualitymeter.route = "anaegjuvogin/*"
+	resources.router.routes.qualitymeter.defaults.module = "default"
+	resources.router.routes.qualitymeter.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter.defaults.action = "index"
+	
+	;Qualitymeter::basics
+	resources.router.routes.qualitymeter-basics.route = "anaegjuvogin/grunnlikanid"
+	resources.router.routes.qualitymeter-basics.defaults.module = "default"
+	resources.router.routes.qualitymeter-basics.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-basics.defaults.action = "basics"
+	
+	;Qualitymeter::results2002
+	resources.router.routes.qualitymeter-results2002.route = "anaegjuvogin/nidurstodur2002"
+	resources.router.routes.qualitymeter-results2002.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2002.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2002.defaults.action = "results2002"
+	
+	;Qualitymeter::results2003
+	resources.router.routes.qualitymeter-results2003.route = "anaegjuvogin/nidurstodur2003"
+	resources.router.routes.qualitymeter-results2003.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2003.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2003.defaults.action = "results2003"
+	
+	;Qualitymeter::results2004
+	resources.router.routes.qualitymeter-results2004.route = "anaegjuvogin/nidurstodur2004"
+	resources.router.routes.qualitymeter-results2004.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2004.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2004.defaults.action = "results2004"
+	
+	;Qualitymeter::results2005
+	resources.router.routes.qualitymeter-results2005.route = "anaegjuvogin/nidurstodur2005"
+	resources.router.routes.qualitymeter-results2005.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2005.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2005.defaults.action = "results2005"
+	
+	;Qualitymeter::results2006
+	resources.router.routes.qualitymeter-results2006.route = "anaegjuvogin/nidurstodur2006"
+	resources.router.routes.qualitymeter-results2006.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2006.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2006.defaults.action = "results2006"
+	
+	;Qualitymeter::results2007
+	resources.router.routes.qualitymeter-results2007.route = "anaegjuvogin/nidurstodur2007"
+	resources.router.routes.qualitymeter-results2007.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2007.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2007.defaults.action = "results2007"
+	
+	;Qualitymeter::results2008
+	resources.router.routes.qualitymeter-results2008.route = "anaegjuvogin/nidurstodur2008"
+	resources.router.routes.qualitymeter-results2008.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2008.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2008.defaults.action = "results2008"
+	
+	;Qualitymeter::results2009
+	resources.router.routes.qualitymeter-results2009.route = "anaegjuvogin/nidurstodur2009"
+	resources.router.routes.qualitymeter-results2009.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2009.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2009.defaults.action = "results2009"
+	
+	;Qualitymeter::results2010
+	resources.router.routes.qualitymeter-results2010.route = "anaegjuvogin/nidurstodur2010"
+	resources.router.routes.qualitymeter-results2010.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2010.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2010.defaults.action = "results2010"
+	
+	;Qualitymeter::results2011
+	resources.router.routes.qualitymeter-results2011.route = "anaegjuvogin/nidurstodur2011"
+	resources.router.routes.qualitymeter-results2011.defaults.module = "default"
+	resources.router.routes.qualitymeter-results2011.defaults.controller = "qualitymeter"
+	resources.router.routes.qualitymeter-results2011.defaults.action = "results2011"	
+	
+	;Managementawards
+	resources.router.routes.managementawards.route = "stjornunarverdlaunin/*"
+	resources.router.routes.managementawards.defaults.module = "default"
+	resources.router.routes.managementawards.defaults.controller = "managementawards"
+	resources.router.routes.managementawards.defaults.action = "index"
+
+	;Managementawards::recipients2010
+	resources.router.routes.managementawards-recipients2010.route = "stjornunarverdlaunin/handhafar2010"
+	resources.router.routes.managementawards-recipients2010.defaults.module = "default"
+	resources.router.routes.managementawards-recipients2010.defaults.controller = "managementawards"
+	resources.router.routes.managementawards-recipients2010.defaults.action = "recipients2010"
+	
+	;Managementawards::recipients2011
+	resources.router.routes.managementawards-recipients2011.route = "stjornunarverdlaunin/handhafar2011"
+	resources.router.routes.managementawards-recipients2011.defaults.module = "default"
+	resources.router.routes.managementawards-recipients2011.defaults.controller = "managementawards"
+	resources.router.routes.managementawards-recipients2011.defaults.action = "recipients2011"
+	
+	;Sitemap
+	resources.router.routes.sitemap.route = "veftre"
+	resources.router.routes.sitemap.defaults.module = "default"
+	resources.router.routes.sitemap.defaults.controller = "index"
+	resources.router.routes.sitemap.defaults.action = "sitemap"
+;--------------------------------------------------------------------------------
+[staging : production]
+;--------------------------------------------------------------------------------
+	phpSettings.display_startup_errors = 1
+	phpSettings.display_errors = 1
+	resources.frontController.params.displayExceptions = 1
+	;;;;;DATABASE
+	resources.db.params.host = 127.0.0.1
+	resources.db.params.username = root
+	resources.db.params.password = mu98na
+	resources.db.params.dbname = stjornvisi
+	
+	resources.mail.transport.type = Ext_Mail_Transport_File
+	resources.mail.transport.file = APPLICATION_PATH "/../var/log/mail.log"
+
+;--------------------------------------------------------------------------------
+[testing : production]
+;--------------------------------------------------------------------------------
+	phpSettings.display_startup_errors = 1
+	phpSettings.display_errors = 1
+
+	;;;;;DATABASE
+	resources.db.params.host = 127.0.0.1
+	resources.db.params.username = root
+	resources.db.params.password = 
+	resources.db.params.dbname = stjornvisi_test
+	
+;--------------------------------------------------------------------------------
+[staging_testing : testing]
+;--------------------------------------------------------------------------------
+	;;;;;DATABASE
+	resources.db.params.host = 127.0.0.1
+	resources.db.params.username = root
+	resources.db.params.password = mu98na
+	resources.db.params.dbname = stjornvisi_test
+	
+;--------------------------------------------------------------------------------
+[development : production]
+;--------------------------------------------------------------------------------
+	phpSettings.display_startup_errors = 1
+	phpSettings.display_errors = 1
+	resources.frontController.params.displayExceptions = 1
+
+	;;;;;DATABASE
+	resources.db.params.host = 127.0.0.1
+	resources.db.params.username = root
+	resources.db.params.password = 
+	resources.db.params.dbname = stjornvisi
+	
+	resources.mail.transport.type = Ext_Mail_Transport_File
+	resources.mail.transport.file = APPLICATION_PATH "/../var/log/mail.log"
+
+;	resources.mail.transport.type = smtp
+;	resources.mail.transport.host = "smtp.gmail.com"
+;	resources.mail.transport.port = 465
+;	resources.mail.transport.auth = login
+;	resources.mail.transport.username = "someUserMail"
+;	resources.mail.transport.password = "somePass"
+;	resources.mail.transport.register = true ; True by default

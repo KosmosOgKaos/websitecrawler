@@ -1,0 +1,186 @@
+<?php
+	set_time_limit(0);
+	require_once dirname(__FILE__).'/bootstrap.php';
+	//Búa til gangatengingu við gagnagrunn
+	$adapter = Zend_Db_Table_Abstract::getDefaultAdapter();
+	echo "Starting\n";
+	$uris = $adapter->fetchAll( 'SELECT * FROM LinkCollection WHERE visited = FALSE');
+	foreach( $uris as $uri )
+	{		
+		echo "Er að vinna með vefslóðina: " . $uri['href'] . "\n";
+		//Byrja á því að athuga hvort gögnin séu nú þegar til í gagnagrunninum.
+		$locationTemp = $adapter->fetchRow( 
+			'SELECT location_id FROM LocationTranslate WHERE source_url = "' .$uri['href'] . '"');
+		
+		if( !$locationTemp['location_id'] > 0 ){
+			//Búa til client
+			$client = new Zend_Http_Client($uri['href']);
+			
+			//Hringja og fá niðurstöður
+			$result = $client->request('GET');
+			
+			//Taka niðurstöður og búa til object til að gera fyrirspurnir á (HTML)
+			$dom = new Zend_Dom_Query($result->getBody());
+		
+			
+			
+			//Query all the tags to gather the data available
+			$nameNodeList 		= $dom->query("h1");
+			$name 				= $nameNodeList->current()->nodeValue;
+			$idNodeList			= $dom->query("div .id");
+			$id					= $idNodeList->current()->nodeValue;
+			$xNodeList			= $dom->query("div .x");
+			$x					= $xNodeList->current()->nodeValue;
+			$yNodeList			= $dom->query("div .y");
+			$y					= $yNodeList->current()->nodeValue;
+			$locationNodeList	= $dom->query("div .location");
+			$location			= $locationNodeList->current()->nodeValue;
+			$infoNodeList		= $dom->query("div.info div.row");
+			foreach ($infoNodeList as $item){
+				$string = trim( $item->nodeValue );
+		
+				if( strpos( $string, 'Address' ) === 0 ){
+					$address = trim( str_replace( 'Address', '', $string ) );
+				}
+				
+				if( strpos( $string, 'Location' ) === 0 ){
+					$location = trim( str_replace( 'Location', '', $string ) );
+				}
+				
+				if( strpos( $string, 'E-mail' ) === 0 ){
+					$email = trim( str_replace( 'E-mail', '', $string ) );
+				}
+				
+				if( strpos( $string, 'Website' ) === 0 ){
+					$website = trim( str_replace( 'Website', '', $string ) );
+				}
+				
+				if( strpos( $string, 'Telephone' ) === 0 ){
+					$telephone = trim( str_replace( 'Telephone', '', $string ) );
+					$telephoneArray = explode( "\n", $telephone );
+					//Here we need to decide what to do with the telephone numbers
+					//Do we include only one in this prototype or  do we allow
+					//multiple phone numbers
+					
+					$telephoneNumber = trim( $telephoneArray[0] );
+				}
+				
+				if( strpos( $string, 'Rooms' ) === 0 ){
+					$rooms = trim( str_replace( 'Rooms', '', $string ) );
+				}
+				
+				if( strpos( $string, 'Beds' ) === 0 ){
+					$beds = trim( str_replace( 'Beds', '', $string ) );
+				}
+			}
+			
+			echo "Fyrirtækið / staðurinn heitir: $name\n";
+			
+			$textNodeList			= $dom->query("div.service-view div p");
+			$textStringFormatted = "";
+			foreach( $textNodeList as $item ){
+				$textStringFormatted .= "<p>" . trim( $item->nodeValue ) . "</p>";
+			}
+			
+			$adapter->insert( 'Location', array(
+				'safename'		=> trim( $id ),
+				'x_coords_ja'	=> trim( $x ),
+				'y_coords_ja'	=> trim( $y ),
+				'address'		=> trim( $address ),
+				'town'			=> trim( $location ),
+				'email'			=> trim( $email ),
+				'website'		=> trim( $website ),
+				'phone'			=> trim( $telephoneNumber ),
+				'rooms'			=> isset( $rooms ) ? $rooms : null,
+				'beds'			=> isset( $beds ) ? $beds : null,
+				'source'		=> 'Visit Iceland'				
+			));
+			echo "Set inn location gögn í gagnagrunn.\n";
+			$insertedID = $adapter->lastInsertId( 'Location' );
+			$adapter->insert( 'LocationTranslate', array(
+				'location_id'	=>	$insertedID,
+				'region'		=>	'en_GB',
+				'name'			=> trim( $name ),
+				'description'	=> $textStringFormatted,
+				'source_url'	=> $uri['href']
+			) );
+			echo "Set inn location translate gögn í gagnagrunn.\n";
+			//We need to walk through the $infoNodeList again, now to deal
+			//with the categories, since they are added after we get an id 
+			//from the database for the location
+			foreach ($infoNodeList as $item){
+				$string = trim( $item->nodeValue );
+				
+				if( strpos( $string, 'Categories' ) === 0 )
+				{
+					$trimmedString = trim( str_replace( 'Categories', '', $string ) );
+					$categoriesArray = explode( ',', $trimmedString );
+					foreach( $categoriesArray as $cat ){				
+						$result = $adapter->fetchRow(
+							"SELECT id
+							FROM CategoryTranslate
+							WHERE name = '" . trim($cat) . "'"
+						);
+						
+						if (! $result['id'] ){
+							$adapter->insert('CategoryTranslate', array( 	
+								'region' 	=> 'en_GB',
+								'name'		=> trim($cat)
+							) );
+							$lastInsertedCategoryTranslateID = $adapter->lastInsertId( 'CategoryTranslate' );
+							echo "Fann ekki $cat í gagnagrunninum, bæti við nýjum.\n";
+							echo "Nota lastInsertedCategoryTranslateID sem er: $lastInsertedCategoryTranslateID\n";
+						}
+						else
+						{
+							echo "Fann $cat í gagnagrunninum, bæti ekki við nýjum.\n";
+							echo "Nota result[id] sem er: ". $result['id'] . "\n";
+						}
+						
+						$adapter->insert( "Location_has_CategoryTranslate", array(
+							'location_id'			=> $insertedID,
+							'categorytranslate_id'	=> ( $result['id'] ) 
+									? $result['id'] 
+									: $lastInsertedCategoryTranslateID
+						) );
+					}
+				}
+			}
+			
+			$imageNodeList			= $dom->query("div.thumbs div.item a");
+			foreach( $imageNodeList as $item ){
+				$imageLocation = $item->getAttribute('href');
+				$adapter->insert( 'Picture', array(
+					'name'	=> $imageLocation
+				) );
+				
+				$pictureID = $adapter->lastInsertId( 'Picture' );
+				
+				$adapter->insert( 'Picture_has_Location', array(
+					'pictures_id'	=> $pictureID,
+					'location_id'	=> $insertedID
+				) );
+			}
+			
+			//Lets wait with this one, since it doesn't fit in the schema 
+			//right now.
+	//		$openingPeriodNodeList 	= $dom->query("div.opening div.value");
+	//		foreach( $openingPeriodNodeList as $item ){
+	//			$openingPeriod = $item->nodeValue;
+	//		}
+			echo "-------------------------------------------------------------\n";
+			
+		}
+		else
+		{
+			echo "Þessi vefslóð er nú þegar til í gagnagrunninum\n";
+			echo "-------------------------------------------------------------\n";
+			
+		}	
+		
+		//Finally, update the LinkCollection to set the URL as visited
+		$adapter->update( 'LinkCollection', array(
+				'visited'	=> TRUE
+			), "id = {$uri['id']}" );
+	}
+	
